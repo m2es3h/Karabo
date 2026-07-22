@@ -14,8 +14,16 @@
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or
 # FITNESS FOR A PARTICULAR PURPOSE.
 [build-system]
-requires = ["setuptools>=61", "setuptools-scm>=6", "wheel"]
+requires = ["setuptools>=61", "setuptools-scm>=6", "wheel", "pybind11"]
 build-backend = "setuptools.build_meta"
+
+[tool.cibuildwheel]
+# build only CPython 3.12 manylinux
+build = "cp312-manylinux_*"
+
+[tool.cibuildwheel.linux]
+# build only for x86 64-bit
+archs = ["x86_64"]
 
 # Note: pyproject is NOT at repo root, so point to it.
 [tool.setuptools_scm]

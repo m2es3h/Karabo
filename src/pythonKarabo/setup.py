@@ -16,8 +16,45 @@
 # flake8: noqa
 
 import os
+import sys
+from pathlib import Path
+from site import getsitepackages  #, getusersitepackages
+from glob import glob
 
+from pybind11.setup_helpers import Pybind11Extension, ParallelCompile, naive_recompile
 from setuptools import find_packages, setup
+
+# avoid re-compiling C++ source files that have not changed
+# comment this line out to force a recompile of all header and source files
+#ParallelCompile("NUM_JOBS", needs_recompile=naive_recompile).install()
+
+# get path to karabo extern directory
+compiletime_dirs = [Path(pkg).parent.parent.parent for pkg in getsitepackages()]
+# use compile-time arguments same as karabind's CMakeLists.txt
+extra_compile_args = [
+    '-DBOOST_ALL_DYN_LINK',
+    '-DFMT_SHARED',
+    '-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION',
+    '-DSPDLOG_COMPILED_LIB',
+    '-DSPDLOG_FMT_EXTERNAL',
+    '-DUSE_OS_TZDB=0',
+    '-D__SO__',
+    '-flto=auto',
+    '-fno-fat-lto-objects',
+    '-fvisibility=hidden',
+    '-Wfatal-errors',
+    '-Wno-unused-local-typedefs',
+    '-Wno-noexcept-type',
+    '-Wall',
+    '-Wno-deprecated-declarations'] if sys.platform.startswith("linux") else []
+
+karabo_dirs = [pkg.parent for pkg in compiletime_dirs]
+karabind_dir = Path(__file__).resolve().parent.parent / 'karabind'
+
+if sys.platform == "darwin":
+    runtime_dirs = ["@loader_path/../../karabo/", "@loader_path/../../../", "@loader_path/../../../../", *getsitepackages()]
+else:
+    runtime_dirs = ["$ORIGIN/../../karabo/", "$ORIGIN/../../../", "$ORIGIN/../../../../", *getsitepackages()]
 
 SUBMODULE = os.getenv("BUILD_KARABO_SUBMODULE", "")
 print(f"Building karabo submodule: '{SUBMODULE}'")
@@ -159,6 +196,32 @@ else:
             "BrokenTestDevice=karabo.bound.tests.brokenBoundDevice:BrokenTestDevice",
         ],
     }
+
+    install_args['ext_modules'] = [
+        Pybind11Extension(
+            name = 'karabind',
+            sources = [
+                *sorted(glob("../karabind/*.cc")),
+            ],
+            extra_compile_args=extra_compile_args,
+            include_dirs=[
+                *[str(Path(extern_dir) / "include") for extern_dir in compiletime_dirs],
+                # path to this project's src directory
+                *[str(d / "include") for d in karabo_dirs],
+                str(karabind_dir),
+            ],
+            library_dirs=[
+                *[str(Path(extern_dir) / "lib") for extern_dir in compiletime_dirs],
+                *[str(d / "lib") for d in karabo_dirs],
+            ],
+            runtime_library_dirs=[
+                *[str(Path(base_dir) / "lib") for base_dir in runtime_dirs],
+            ],
+            libraries=["karabo", "ssl"],
+            language='c++',
+            cxx_std=20,
+        ),
+    ]
 
 
 if __name__ == "__main__":
