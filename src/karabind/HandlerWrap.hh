@@ -22,6 +22,7 @@
 #ifndef KARABIND_HANDLERWRAP_HH
 #define KARABIND_HANDLERWRAP_HH
 
+#include <algorithm>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>

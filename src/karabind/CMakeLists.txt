@@ -40,6 +40,7 @@ message(STATUS "NumPy include dirs = '${Python3_NumPy_INCLUDE_DIRS}'")
 
 # Here we are using 'pybind11' package instead of Boost Python
 find_package(pybind11 CONFIG REQUIRED)
+find_package(OpenSSL CONFIG REQUIRED)
 
 file(GLOB_RECURSE KARABIND_SRCS CONFIGURE_DEPENDS "*.cc")
 
@@ -92,6 +93,7 @@ target_link_libraries(
     ${KARABO_LIB_TARGET_NAME}
     pybind11::headers
     ${PYTHON_LIBRARIES}
+    OpenSSL::SSL
 )
 
 install(

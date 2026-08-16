@@ -16,6 +16,7 @@
  * FITNESS FOR A PARTICULAR PURPOSE.
  */
 
+#include <algorithm>
 #include <pybind11/pybind11.h>
 
 #include "PythonFactoryMacros.hh"

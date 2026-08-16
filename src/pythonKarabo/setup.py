@@ -29,7 +29,8 @@ from setuptools import find_packages, setup
 #ParallelCompile("NUM_JOBS", needs_recompile=naive_recompile).install()
 
 # get path to karabo extern directory
-compiletime_dirs = [Path(pkg).parent.parent.parent for pkg in getsitepackages()]
+compiletime_dirs = [Path('/usr')]
+
 # use compile-time arguments same as karabind's CMakeLists.txt
 extra_compile_args = [
     '-DBOOST_ALL_DYN_LINK',
@@ -48,13 +49,13 @@ extra_compile_args = [
     '-Wall',
     '-Wno-deprecated-declarations'] if sys.platform.startswith("linux") else []
 
-karabo_dirs = [pkg.parent for pkg in compiletime_dirs]
+karabo_dir = Path(__file__).resolve().parent.parent / 'karabo'
 karabind_dir = Path(__file__).resolve().parent.parent / 'karabind'
 
 if sys.platform == "darwin":
     runtime_dirs = ["@loader_path/../../karabo/", "@loader_path/../../../", "@loader_path/../../../../", *getsitepackages()]
 else:
-    runtime_dirs = ["$ORIGIN/../../karabo/", "$ORIGIN/../../../", "$ORIGIN/../../../../", *getsitepackages()]
+    runtime_dirs = ["/usr/lib", "$ORIGIN/../lib"]
 
 SUBMODULE = os.getenv("BUILD_KARABO_SUBMODULE", "")
 print(f"Building karabo submodule: '{SUBMODULE}'")
@@ -207,15 +208,17 @@ else:
             include_dirs=[
                 *[str(Path(extern_dir) / "include") for extern_dir in compiletime_dirs],
                 # path to this project's src directory
-                *[str(d / "include") for d in karabo_dirs],
+                str(karabo_dir / ".."),
                 str(karabind_dir),
             ],
             library_dirs=[
                 *[str(Path(extern_dir) / "lib") for extern_dir in compiletime_dirs],
-                *[str(d / "lib") for d in karabo_dirs],
+                *[str(Path(extern_dir) / "lib64") for extern_dir in compiletime_dirs],
             ],
             runtime_library_dirs=[
-                *[str(Path(base_dir) / "lib") for base_dir in runtime_dirs],
+                *[str(Path(extern_dir) / "lib") for extern_dir in compiletime_dirs],
+                *[str(Path(extern_dir) / "lib64") for extern_dir in compiletime_dirs],
+                *[str(Path(extern_dir)) for extern_dir in runtime_dirs],
             ],
             libraries=["karabo", "ssl"],
             language='c++',

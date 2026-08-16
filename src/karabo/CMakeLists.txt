@@ -161,13 +161,14 @@ add_library(
 )
 
 # finding dependencies
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS atomic chrono date_time filesystem regex system thread)
 find_package(amqpcpp REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(pugixml REQUIRED)
-find_package(date REQUIRED)
+find_package(CURL REQUIRED)
+find_package(OpenSSL REQUIRED)
 
 set_target_properties(
         ${KARABO_LIB_TARGET_NAME} PROPERTIES
@@ -189,7 +190,7 @@ target_compile_definitions(
 
 target_compile_options(
     ${KARABO_LIB_TARGET_NAME}
-    PUBLIC -Wno-unused-local-typedefs -Wno-deprecated-declarations -Wall)
+    PUBLIC -Wno-unused-local-typedefs -Wno-deprecated-declarations -Wall -DSPDLOG_FMT_EXTERNAL)
 
 target_include_directories(
     ${KARABO_LIB_TARGET_NAME}
@@ -212,9 +213,9 @@ target_link_libraries(
     fmt::fmt
     nlohmann_json::nlohmann_json
     pugixml::pugixml
-    date::date
-    curl
-    openssl::openssl
+#    date::date
+    CURL::libcurl
+    OpenSSL::SSL
 )
 
 # Adding interface libraries to KARABO_LIB_TARGET_NAME
