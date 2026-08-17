@@ -18,6 +18,7 @@ find_package_handle_standard_args(spdlog
 if(spdlog_FOUND AND NOT TARGET spdlog::spdlog)
     add_library(spdlog::spdlog UNKNOWN IMPORTED GLOBAL)
     set_target_properties(spdlog::spdlog PROPERTIES
+        INTERFACE_COMPILE_DEFINITIONS "SPDLOG_COMPILED_LIB;SPDLOG_FMT_EXTERNAL"
         INTERFACE_INCLUDE_DIRECTORIES "${spdlog_INCLUDE_DIR}"
         IMPORTED_LOCATION "${spdlog_LIBRARY}"
     )

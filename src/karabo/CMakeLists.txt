@@ -190,7 +190,7 @@ target_compile_definitions(
 
 target_compile_options(
     ${KARABO_LIB_TARGET_NAME}
-    PUBLIC -Wno-unused-local-typedefs -Wno-deprecated-declarations -Wall -DSPDLOG_FMT_EXTERNAL)
+    PUBLIC -Wno-unused-local-typedefs -Wno-deprecated-declarations -Wall)
 
 target_include_directories(
     ${KARABO_LIB_TARGET_NAME}

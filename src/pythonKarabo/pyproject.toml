@@ -19,22 +19,19 @@ build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel]
 # build only CPython 3.12 manylinux
-#    "echo $'\n[platform_requires]\nopenssl/3\nboost/1.78.0\n[buildenv]\nBOOST_ROOT=/usr\nBOOST_INCLUDEDIR=/usr/include/boost1.78\nBOOST_LIBRARYDIR=/usr/lib64\n' >> ~/.conan2/profiles/default",
 build = "cp312-manylinux_*"
 before-all = [
-    "yum install -yq ccache python3.12-pip python3.12-devel openssl-devel openssl3-devel boost1.78-devel fmt-devel pugixml-devel libcurl-devel && pip3.12 install conan numpy~=2.0.0 && conan profile detect",
-    "ln -sf /usr/include/boost1.78/boost /usr/include/boost",
-    "echo $'\n[platform_requires]\nopenssl/3\nboost/1.78.0\n' >> ~/.conan2/profiles/default",
-    "export EXTERN_DEPS_DIR=/usr",
+    "yum install -yq ccache openssl-devel openssl3-devel fmt-devel pugixml-devel libcurl-devel && pip install conan numpy~=2.0.0 && conan profile detect",
+    "echo $'\n[platform_requires]\nopenssl/3\n' >> ~/.conan2/profiles/default",
     "cd /project/src/karabo",
     "mkdir -p build_release_cibuildwhl",
     "cd build_release_cibuildwhl",
-    "conan install --requires=amqp-cpp/4.3.26 --requires=nlohmann_json/3.12.0 --requires=spdlog/1.14.1 --requires=fmt/10.2.1 --build=missing --deployer=/project/extern/karabo_deployer --deployer-folder=$EXTERN_DEPS_DIR",
+    "conan install --requires=boost/1.88.0 --build=b2/* --requires=amqp-cpp/4.3.26 --requires=nlohmann_json/3.12.0 --requires=spdlog/1.14.1 --requires=fmt/10.2.1 --build=missing --deployer=/project/extern/karabo_deployer --deployer-folder=$EXTERN_DEPS_DIR",
     "VERBOSE=1 cmake -DCMAKE_MODULE_PATH=\"/usr/lib64/cmake;/project/src/karabo/cmake\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$EXTERN_DEPS_DIR -DCMAKE_INSTALL_PREFIX=$EXTERN_DEPS_DIR ..",
     "VERBOSE=1 cmake --build . --target install",
 ]
 # Pass host cache paths and configure compiler launchers inside the container
-environment = { CCACHE_DIR = "/host/tmp/ccache", CMAKE_CXX_COMPILER_LAUNCHER = "ccache", CMAKE_C_COMPILER_LAUNCHER = "ccache" }
+environment = { EXTERN_DEPS_DIR = "/usr", CONAN_CPU_COUNT = "1", CCACHE_DIR = "/host/tmp/ccache", CMAKE_CXX_COMPILER_LAUNCHER = "ccache", CMAKE_C_COMPILER_LAUNCHER = "ccache" }
 
 [tool.cibuildwheel.linux]
 # build only for x86 64-bit
