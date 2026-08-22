@@ -18,20 +18,23 @@ requires = ["setuptools>=61", "setuptools-scm>=6", "wheel", "pybind11"]
 build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel]
-# build only CPython 3.12 manylinux
-build = "cp312-manylinux_*"
+# build only CPython 3.14 manylinux
+build = "cp314-manylinux_*"
 before-all = [
-    "yum install -yq ccache openssl-devel openssl3-devel fmt-devel pugixml-devel libcurl-devel && pip install conan numpy~=2.0.0 && conan profile detect",
-    "echo $'\n[platform_requires]\nopenssl/3\n' >> ~/.conan2/profiles/default",
+    # dependencies that can be any version
+    "yum install -yq openssl-devel openssl3-devel pugixml-devel libcurl-devel zlib-devel && pip install conan numpy~=2.0.0 && conan profile detect",
+    "echo $'\n[platform_requires]\nlibcurl/*\nopenssl/3\npugixml/*\nzlib/*\n' >> ~/.conan2/profiles/default",
     "cd /project/src/karabo",
     "mkdir -p build_release_cibuildwhl",
     "cd build_release_cibuildwhl",
-    "conan install --requires=boost/1.88.0 --build=b2/* --requires=amqp-cpp/4.3.26 --requires=nlohmann_json/3.12.0 --requires=spdlog/1.14.1 --requires=fmt/10.2.1 --build=missing --deployer=/project/extern/karabo_deployer --deployer-folder=$EXTERN_DEPS_DIR",
-    "VERBOSE=1 cmake -DCMAKE_MODULE_PATH=\"/usr/lib64/cmake;/project/src/karabo/cmake\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$EXTERN_DEPS_DIR -DCMAKE_INSTALL_PREFIX=$EXTERN_DEPS_DIR ..",
+    # dependencies that should be a specific version
+    "conan install --requires=boost/1.88.0 --build=b2/* --requires=amqp-cpp/4.3.26 --requires=nlohmann_json/3.12.0 --requires=spdlog/1.14.1 -o *:shared=True --build=missing -g CMakeDeps -g CMakeToolchain --deployer=/project/extern/karabo_deployer --deployer-folder=$EXTERN_DEPS_DIR",
+    "ls -la /project/src/karabo/build_release_cibuildwhl",
+    "VERBOSE=1 cmake -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$EXTERN_DEPS_DIR -DCMAKE_INSTALL_PREFIX=$EXTERN_DEPS_DIR ..",
     "VERBOSE=1 cmake --build . --target install",
 ]
 # Pass host cache paths and configure compiler launchers inside the container
-environment = { EXTERN_DEPS_DIR = "/usr", CONAN_CPU_COUNT = "1", CCACHE_DIR = "/host/tmp/ccache", CMAKE_CXX_COMPILER_LAUNCHER = "ccache", CMAKE_C_COMPILER_LAUNCHER = "ccache" }
+environment = { EXTERN_DEPS_DIR = "/usr", CONAN_CPU_COUNT = "1" }  #, CCACHE_DIR = "/host/tmp/ccache", CMAKE_CXX_COMPILER_LAUNCHER = "ccache", CMAKE_C_COMPILER_LAUNCHER = "ccache" }
 
 [tool.cibuildwheel.linux]
 # build only for x86 64-bit

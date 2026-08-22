@@ -14,6 +14,7 @@
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or
 # FITNESS FOR A PARTICULAR PURPOSE.
 
+from __future__ import annotations
 import datetime
 
 from sqlalchemy import Column, Text, UniqueConstraint

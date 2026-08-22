@@ -67,6 +67,32 @@ install_args = {
     "description": "This is the Python interface of the Karabo control system",
     "url": "http://karabo.eu",
     "license": "MPL2",
+    "install_requires": [
+        "aiormq==3.3.1",
+        "ipython==8.17.2",
+        "numpy~=2.3.0",
+        "pint==0.25.3",
+        "psutil<6",
+        "pyexistdb==1.0.1",
+        "python-dateutil<3.0",
+        # version 82 removes pkg_resources
+        "setuptools<82.0.0",
+        "sqlmodel==0.0.22",
+        "tabulate==0.9.0",
+        "tornado==6.3.3",
+        "traits==7.1.0",
+    ],
+    "extras_require": {
+        "test": [
+            "pytest==8.3.3",
+            "pytest-asyncio==1.0.0",
+            "pytest-cov==6.1.1",
+            "pytest-mock==3.14.1",
+            "pytest-runner==6.0.0",
+            "pytest-subtests==0.14.1",
+            "pytest-timeout==2.4.0"
+        ]
+    }
 }
 
 if SUBMODULE == "NATIVE":

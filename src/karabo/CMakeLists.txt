@@ -206,14 +206,13 @@ target_include_directories(
 # These are linked against and provided to the public link interface
 target_link_libraries(
     ${KARABO_LIB_TARGET_NAME}
-    PUBLIC
+    PRIVATE
     amqpcpp  # not a typo, this package does not define a namespace
     Boost::headers
     spdlog::spdlog
     fmt::fmt
     nlohmann_json::nlohmann_json
     pugixml::pugixml
-#    date::date
     CURL::libcurl
     OpenSSL::SSL
 )
