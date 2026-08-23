@@ -19,10 +19,10 @@ build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel]
 # build only CPython 3.14 manylinux
-build = "cp314-manylinux_*"
+build = "cp314-manylinux_* cp312-manylinux_*"
 before-all = [
     # dependencies that can be any version
-    "yum install -yq openssl-devel openssl3-devel pugixml-devel libcurl-devel zlib-devel && pip install conan numpy~=2.0.0 && conan profile detect",
+    "yum install -yq openssl-devel openssl3-devel pugixml-devel libcurl-devel zlib-devel && pip install conan==2.21.0 && conan profile detect",
     "echo $'\n[platform_requires]\nlibcurl/*\nopenssl/3\npugixml/*\nzlib/*\n' >> ~/.conan2/profiles/default",
     "cd /project/src/karabo",
     "mkdir -p build_release_cibuildwhl",
