@@ -29,6 +29,7 @@ jobs:
       - name: Build release distributions
         uses: pypa/cibuildwheel@v3.4
         with:
+          package-dir: "src/pythonKarabo"
           config-file: "src/pythonKarabo/pyproject.toml"
         env:
           # exclude all musllinux and win32 wheels
